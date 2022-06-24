@@ -34,6 +34,7 @@ func (h *VoucherRestHandler) CreateVoucher(w http.ResponseWriter, r *http.Reques
 		fmt.Fprint(w, pkg.ResponseSchema{Message: err.Error()})
 		return
 	}
+	request.Validation()
 	createFunc := h.voucherService.CreateRateVoucher
 	if request.VoucherType == entity.CostVoucher {
 		createFunc = h.voucherService.CreateCostVoucher
@@ -107,17 +108,35 @@ func (h *VoucherRestHandler) TestMethod(writer http.ResponseWriter, request *htt
 	fmt.Fprintf(writer, "Test Method Running with id: %s", id)
 }
 
-func createSubRouter(router *mux.Router, subPath string) *mux.Router {
-	return router.PathPrefix(subPath).Subrouter()
+func createSubRouterWithMiddleware(router *mux.Router, subPath string, f func(r *http.Request, rm *mux.RouteMatch) bool) *mux.Router {
+	middleware := router.MatcherFunc(f).Subrouter()
+	return middleware.PathPrefix(subPath).Subrouter()
 }
 
 func (h *VoucherRestHandler) initRouter() {
-	subRouter := createSubRouter(h.router, "/voucher")
-	subRouter.HandleFunc("/create", h.CreateVoucher)
-	subRouter.HandleFunc("/update/", h.UpdateVoucher)
-	subRouter.HandleFunc("/validate/{subdomain:[a-z0-9]+}", h.ValidateVoucher)
+	subRouter := createSubRouterWithMiddleware(h.router, "", func(r *http.Request, rm *mux.RouteMatch) bool {
+		if r.Header != nil {
+			return true
+		}
+		return false
+	})
+	subRouter2 := createSubRouterWithMiddleware(subRouter, "/voucher", func(r *http.Request, rm *mux.RouteMatch) bool {
+		request := voucher.CreateVoucherRequest{}
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			return false
+		}
+		if request.VoucherType != "araba" {
+			return false
+		}
+		return true
+	})
+	subRouter2.HandleFunc("/create", h.CreateVoucher).Methods("POST")
+	subRouter2.HandleFunc("/update/", h.UpdateVoucher).Methods("PUT")
+	subRouter2.HandleFunc("/validate/{orderID:[a-z0-9]+}", h.ValidateVoucher).Methods("GET", "POST", "PUT", "DELETE")
+
 	subRouter.HandleFunc("/apply", h.ApplyOrder)
 	subRouter.HandleFunc("/cancel", h.CancelOrder)
-	subRouter.HandleFunc("/get", h.GetByOrder)
-	subRouter.HandleFunc("/test/{id:[0-9]+}", h.TestMethod)
+	subRouter.HandleFunc("/get", h.GetByOrder).Methods("GET")
+	subRouter.HandleFunc("/test/{id:[0-9]+}", h.TestMethod).Methods("GET")
 }

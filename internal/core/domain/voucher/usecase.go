@@ -3,9 +3,13 @@ package voucher
 import "github.com/alameddinc/GoVoucherGo/internal/core/entity"
 
 type CreateVoucherRequest struct {
-	VoucherType string
+	VoucherType string `validation:"null"`
 	Discount    float64
 	VendorID    string
+}
+
+func (r CreateVoucherRequest) Validation() {
+
 }
 
 type ValidateVoucherRequest struct {

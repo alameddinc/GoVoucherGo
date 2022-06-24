@@ -19,9 +19,8 @@ func main() {
 	voucherService := services.NewVoucherService(orderRepo, voucherRepo)
 	restApi.NewVoucherRestHandler(voucherService, router)
 	srv := &http.Server{
-		Handler: router,
-		Addr:    "127.0.0.1:8000",
-		// Good practice: enforce timeouts for servers you create!
+		Handler:      router,
+		Addr:         "127.0.0.1:8000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
