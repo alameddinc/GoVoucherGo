@@ -1,11 +1,14 @@
 package restApi
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/alameddinc/GoVoucherGo/internal/core/domain/voucher"
 	"github.com/alameddinc/GoVoucherGo/internal/core/entity"
+	"github.com/alameddinc/GoVoucherGo/pkg"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 type VoucherRestHandler struct {
@@ -25,6 +28,12 @@ func NewVoucherRestHandler(voucherService voucher.Service, router *mux.Router) *
 // CreateVoucher function
 func (h *VoucherRestHandler) CreateVoucher(w http.ResponseWriter, r *http.Request) {
 	request := voucher.CreateVoucherRequest{}
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, pkg.ResponseSchema{Message: err.Error()})
+		return
+	}
 	createFunc := h.voucherService.CreateRateVoucher
 	if request.VoucherType == entity.CostVoucher {
 		createFunc = h.voucherService.CreateCostVoucher
@@ -35,7 +44,12 @@ func (h *VoucherRestHandler) CreateVoucher(w http.ResponseWriter, r *http.Reques
 		fmt.Fprint(w, err)
 		return
 	}
-	fmt.Fprintf(w, "%+v", ResponseSchema{Body: voucher.VoucherCore})
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, pkg.ResponseSchema{Message: err.Error()})
+		return
+	}
+	fmt.Fprintf(w, "%+v", pkg.ResponseSchema{Body: voucher.VoucherCore})
 	return
 }
 
@@ -45,22 +59,17 @@ func (h *VoucherRestHandler) UpdateVoucher(w http.ResponseWriter, r *http.Reques
 	err := h.voucherService.ValidateVoucher(request.Code, request.VendorID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, ResponseSchema{Message: err.Error()})
+		fmt.Fprint(w, pkg.ResponseSchema{Message: err.Error()})
 		return
 	}
 	voucher, err := h.voucherService.UpdateVoucher(request.Code, entity.VoucherCore(request))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, ResponseSchema{Message: err.Error()})
+		fmt.Fprint(w, pkg.ResponseSchema{Message: err.Error()})
 		return
 	}
-	fmt.Fprintf(w, "%+v", ResponseSchema{Body: voucher.VoucherCore})
+	fmt.Fprintf(w, "%+v", pkg.ResponseSchema{Body: voucher.VoucherCore})
 	return
-}
-
-type ResponseSchema struct {
-	Message string `json:"message"`
-	Body    any    `json:"body"`
 }
 
 // ValidateVoucher function
@@ -69,10 +78,10 @@ func (h *VoucherRestHandler) ValidateVoucher(w http.ResponseWriter, r *http.Requ
 	err := h.voucherService.ValidateVoucher(request.VoucherCode, request.VendorID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, ResponseSchema{Message: err.Error()})
+		fmt.Fprint(w, pkg.ResponseSchema{Message: err.Error()})
 		return
 	}
-	fmt.Fprintf(w, "%+v", ResponseSchema{Message: "OK"})
+	fmt.Fprintf(w, "%+v", pkg.ResponseSchema{Message: "OK"})
 }
 
 // ApplyOrder function
@@ -82,6 +91,7 @@ func (h *VoucherRestHandler) ApplyOrder(w http.ResponseWriter, r *http.Request) 
 
 // CancelOrder function
 func (h *VoucherRestHandler) CancelOrder(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode("CancelOrder Running")
 	return
 }
 
@@ -90,12 +100,24 @@ func (h *VoucherRestHandler) GetByOrder(w http.ResponseWriter, r *http.Request) 
 	return
 }
 
+func (h *VoucherRestHandler) TestMethod(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	id := vars["id"]
+
+	fmt.Fprintf(writer, "Test Method Running with id: %s", id)
+}
+
+func createSubRouter(router *mux.Router, subPath string) *mux.Router {
+	return router.PathPrefix(subPath).Subrouter()
+}
+
 func (h *VoucherRestHandler) initRouter() {
-	subRouter := h.router.PathPrefix("/voucher").Subrouter()
+	subRouter := createSubRouter(h.router, "/voucher")
 	subRouter.HandleFunc("/create", h.CreateVoucher)
-	subRouter.HandleFunc("/update", h.UpdateVoucher)
-	subRouter.HandleFunc("/validate", h.ValidateVoucher)
+	subRouter.HandleFunc("/update/", h.UpdateVoucher)
+	subRouter.HandleFunc("/validate/{subdomain:[a-z0-9]+}", h.ValidateVoucher)
 	subRouter.HandleFunc("/apply", h.ApplyOrder)
 	subRouter.HandleFunc("/cancel", h.CancelOrder)
 	subRouter.HandleFunc("/get", h.GetByOrder)
+	subRouter.HandleFunc("/test/{id:[0-9]+}", h.TestMethod)
 }

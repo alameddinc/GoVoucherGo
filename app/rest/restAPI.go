@@ -1,13 +1,14 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/alameddinc/GoVoucherGo/internal/core/handler/restApi"
 	"github.com/alameddinc/GoVoucherGo/internal/core/services"
 	"github.com/alameddinc/GoVoucherGo/pkg/mocks"
 	"github.com/gorilla/mux"
-	"log"
-	"net/http"
-	"time"
 )
 
 func main() {
@@ -24,5 +25,6 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
+	log.Printf("Listening on port 8000")
 	log.Fatal(srv.ListenAndServe())
 }

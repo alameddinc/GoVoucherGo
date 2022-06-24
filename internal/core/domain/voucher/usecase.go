@@ -15,3 +15,5 @@ type ValidateVoucherRequest struct {
 
 type UpdateVoucherRequest entity.VoucherCore
 type CreateVoucherResponse entity.VoucherCore
+type Request entity.VoucherCore
+type Response entity.VoucherCore
