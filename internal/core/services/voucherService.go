@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/alameddinc/GoVoucherGo/internal/core/domains/order"
-	"github.com/alameddinc/GoVoucherGo/internal/core/domains/voucher"
+	"github.com/alameddinc/GoVoucherGo/internal/core/domain/order"
+	"github.com/alameddinc/GoVoucherGo/internal/core/domain/voucher"
 	"github.com/alameddinc/GoVoucherGo/internal/core/entity"
 )
 
