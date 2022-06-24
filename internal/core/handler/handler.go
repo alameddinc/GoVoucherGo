@@ -1,6 +1,6 @@
 package handler
 
-import "github.com/alameddinc/GoVoucherGo/internal/core/domains/voucher"
+import "github.com/alameddinc/GoVoucherGo/internal/core/domain/voucher"
 
 type Handler interface {
 	CreateVoucher(request voucher.Request) voucher.Response

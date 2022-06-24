@@ -4,7 +4,6 @@ package mocks
 
 import (
 	entity "github.com/alameddinc/GoVoucherGo/internal/core/entity"
-
 	mock "github.com/stretchr/testify/mock"
 
 	testing "testing"

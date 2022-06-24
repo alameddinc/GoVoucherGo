@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+// CreateRateVoucher(vendorID string, discountRate float64) (*entity.Voucher, error)
+//	CreateCostVoucher(vendorID string, discountCost float64) (*entity.Voucher, error)
+//	UpdateVoucher(voucherCode string, voucher entity.VoucherCore) (*entity.Voucher, error)
+//
+//	ValidateVoucher(voucherCode, vendorId string) error
+//	ApplyOrder(voucherCode, vendor entity.Vendor, order entity.Order) error
+//	CancelOrder(voucherCode string, order entity.Order) error
+//
+//	GetAllByVendor(vendor entity.Vendor) ([]entity.Voucher, error)
+//	GetByOrder(order entity.Order) (*entity.Voucher, error)
+//	GetByVoucherCode(voucher string) (*entity.Voucher, error)
+// The greeting service definition.
+service Voucher {
+  // Sends a greeting
+  rpc CreateRateVoucher (CreateRateVoucherRequest) returns (CreateRateVoucherResponse) {}
+  rpc CreateCostVoucher (CreateCostVoucherRequest) returns (CreateCostVoucherResponse) {}
+  rpc UpdateVoucher (UpdateVoucherRequest) returns (UpdateVoucherResponse) {}
+  rpc ValidateVoucher (ValidateVoucherRequest) returns (ValidateVoucherResponse) {}
+  rpc ApplyOrder (ApplyOrderRequest) returns (ApplyOrderResponse) {}
+  rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse) {}
+  rpc GetAllByVendor (GetAllByVendorRequest) returns (GetAllByVendorResponse) {}
+  rpc GetByOrder (GetByOrderRequest) returns (GetByOrderResponse) {}
+  rpc GetByVoucherCode (GetByVoucherCodeRequest) returns (GetByVoucherCodeResponse) {}
+}
+
+message VendorStruct {
+  string  VendorID = 1;
+  string ParentVendorID = 2;
+}
+
+message OrderStruct {
+  string OrderID = 1;
+  string VendorID = 2;
+  string ParentVendorID = 3;
+  float TotalCost = 4;
+  float DiscountedCost = 5;
+  string VoucherCode = 6;
+  google.protobuf.Timestamp CreatedAt = 7;
+  google.protobuf.Timestamp CancelledAt = 8;
+}
+
+message VoucherStruct {
+  string Type = 2;
+  float Discount = 3;
+  int64 Count = 6;
+  string Code = 4;
+  string VendorID = 5;
+  google.protobuf.Timestamp CreatedAt = 7;
+  google.protobuf.Timestamp ExpireAt = 8;
+  float MinimumCost = 9;
+  bool Status = 10;
+}
+
+
+// CreateRateVoucher
+message CreateRateVoucherRequest {
+  string vendorID = 1;
+  string discountRate = 2;
+}
+message CreateRateVoucherResponse {
+  VoucherStruct voucher = 1;
+}
+//CreateCostVoucher
+message CreateCostVoucherRequest {
+  string vendorID = 1;
+  string discountCost = 2;
+}
+message CreateCostVoucherResponse {
+  string name = 1;
+}
+//UpdateVoucher
+message UpdateVoucherRequest {
+  string voucherCode = 1;
+  VoucherStruct voucher = 2;
+
+}
+message UpdateVoucherResponse {
+  string name = 1;
+}
+//ValidateVoucher
+message ValidateVoucherRequest {
+  string voucherCode = 1;
+  string vendorId = 2;
+}
+message ValidateVoucherResponse {
+  string name = 1;
+}
+//ApplyOrder
+message ApplyOrderRequest {
+  string voucherCode = 1;
+  VendorStruct vendor = 2;
+
+}
+message ApplyOrderResponse {
+  string name = 1;
+}
+//CancelOrder
+message CancelOrderRequest {
+    string voucherCode = 1;
+  OrderStruct order = 2;
+}
+message CancelOrderResponse {
+  string name = 1;
+}
+//GetAllByVendor
+message GetAllByVendorRequest {
+  VendorStruct vendor = 1;
+}
+message GetAllByVendorResponse {
+  string name = 1;
+}
+//GetByOrder
+message GetByOrderRequest {
+  OrderStruct order = 1;
+}
+message GetByOrderResponse {
+  string name = 1;
+}
+//GetByVoucherCode
+message GetByVoucherCodeRequest {
+  string VoucherCode = 1;
+}
+message GetByVoucherCodeResponse {
+  string name = 1;
+}
