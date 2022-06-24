@@ -19,22 +19,22 @@ func NewVoucherService(orderRepository order.Repository, voucherRepository vouch
 }
 
 // CreateRateVoucher function
-func (s *VoucherService) CreateRateVoucher(voucherType string, discountRate float64) (*entity.Voucher, error) {
+func (s *VoucherService) CreateRateVoucher(vendorID string, discountRate float64) (*entity.Voucher, error) {
 	return nil, nil
 }
 
 // CreateCostVoucher function
-func (s *VoucherService) CreateCostVoucher(voucherType string, discountCost float64) (*entity.Voucher, error) {
+func (s *VoucherService) CreateCostVoucher(vendorID string, discountCost float64) (*entity.Voucher, error) {
 	return nil, nil
 }
 
 // UpdateVoucher function
-func (s *VoucherService) UpdateVoucher(voucherCode string, voucher entity.Voucher) (*entity.Voucher, error) {
+func (s *VoucherService) UpdateVoucher(voucherCode string, voucher entity.VoucherCore) (*entity.Voucher, error) {
 	return nil, nil
 }
 
 // ValidateVoucher function
-func (s *VoucherService) ValidateVoucher(voucherCode, vendorId, parentVendorId string) error {
+func (s *VoucherService) ValidateVoucher(voucherCode, vendorId string) error {
 	return nil
 }
 
@@ -59,6 +59,6 @@ func (s *VoucherService) GetByOrder(order entity.Order) (*entity.Voucher, error)
 }
 
 // GetByVoucherCode function
-func (s *VoucherService) GetByVoucherCode(voucher entity.Voucher) (*entity.Voucher, error) {
+func (s *VoucherService) GetByVoucherCode(voucherCode string) (*entity.Voucher, error) {
 	return nil, nil
 }

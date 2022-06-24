@@ -6,15 +6,20 @@ import (
 )
 
 type Voucher struct {
+	VoucherCore
+	CountryCode string `json:"country_code"`
+}
+
+type VoucherCore struct {
 	Type        string    `json:"type"`
 	Discount    float64   `json:"discount"`
 	Code        string    `json:"code"`
-	CountryCode string    `json:"country_code"`
 	VendorID    string    `json:"vendor_id"`
 	Count       int       `json:"count"`
 	CreatedAt   time.Time `json:"created_at"`
-	ExpireAt    time.Time `json:"expire_at"`
-	MinimumCost float64   `json:"minimum_cost"`
+	ExpireAt    time.Time `json:"expire_at,omitempty"`
+	MinimumCost float64   `json:"minimum_cost,omitempty"`
+	Status      bool      `json:"status"`
 }
 
 const (
@@ -27,13 +32,15 @@ func NewCostVoucher(code, countryCode, vendorID string, discountAmount float64) 
 		return nil, errors.New("discount value has to be bigger then zero")
 	}
 	return &Voucher{
-		Type:        CostVoucher,
-		Code:        code,
+		VoucherCore: VoucherCore{
+			Type:      CostVoucher,
+			Code:      code,
+			VendorID:  vendorID,
+			Count:     1,
+			Discount:  discountAmount,
+			CreatedAt: time.Now(),
+		},
 		CountryCode: countryCode,
-		VendorID:    vendorID,
-		Count:       1,
-		Discount:    discountAmount,
-		CreatedAt:   time.Now(),
 	}, nil
 }
 
@@ -45,13 +52,15 @@ func NewRateVoucher(code, countryCode, vendorID string, discountRate float64) (*
 		discountRate *= 100
 	}
 	return &Voucher{
-		Type:        RateVoucher,
-		Code:        code,
+		VoucherCore: VoucherCore{
+			Type:      RateVoucher,
+			Code:      code,
+			VendorID:  vendorID,
+			Count:     1,
+			Discount:  discountRate,
+			CreatedAt: time.Now(),
+		},
 		CountryCode: countryCode,
-		VendorID:    vendorID,
-		Count:       1,
-		Discount:    discountRate,
-		CreatedAt:   time.Now(),
 	}, nil
 }
 

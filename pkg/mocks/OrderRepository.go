@@ -4,7 +4,6 @@ package mocks
 
 import (
 	entity "github.com/alameddinc/GoVoucherGo/internal/core/entity"
-
 	mock "github.com/stretchr/testify/mock"
 
 	testing "testing"
@@ -26,14 +25,16 @@ func (_m *MockOrderRepository) Cancel(orderID string, VoucherCode string) {
 }
 
 // GetDetails provides a mock function with given fields: orderID
-func (_m *MockOrderRepository) GetDetails(orderID string) entity.Order {
+func (_m *MockOrderRepository) GetDetails(orderID string) *entity.Order {
 	ret := _m.Called(orderID)
 
-	var r0 entity.Order
-	if rf, ok := ret.Get(0).(func(string) entity.Order); ok {
+	var r0 *entity.Order
+	if rf, ok := ret.Get(0).(func(string) *entity.Order); ok {
 		r0 = rf(orderID)
 	} else {
-		r0 = ret.Get(0).(entity.Order)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.Order)
+		}
 	}
 
 	return r0
